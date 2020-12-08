@@ -7,7 +7,7 @@ resource "tls_cert_request" "root" {
   private_key_pem = tls_private_key.root.private_key_pem
 
   subject {
-    common_name  = "${var.name}.vpn.client"
+    common_name  = "${module.this.id}.vpn.client"
     organization = var.organization_name
   }
 }
