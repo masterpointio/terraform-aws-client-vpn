@@ -69,7 +69,12 @@ resource "aws_cloudwatch_log_stream" "vpn" {
 
 resource "null_resource" "export_client_config" {
   provisioner "local-exec" {
-    command = "aws ec2 export-client-vpn-client-configuration --client-vpn-endpoint-id ${aws_ec2_client_vpn_endpoint.default.id} --output text > ${path.root}/client-config-original.ovpn"
+    command = <<-EOT
+    mkdir -p ${path.root}/vpn_config/ && \
+    aws ec2 export-client-vpn-client-configuration \
+            --client-vpn-endpoint-id ${aws_ec2_client_vpn_endpoint.default.id} \
+            --output text > ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn
+EOT
   }
 
   depends_on = [
@@ -79,7 +84,7 @@ resource "null_resource" "export_client_config" {
 }
 
 data "local_file" "client_config_file" {
-  filename = "${path.root}/client-config-original.ovpn"
+  filename = "${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn"
 
   depends_on = [
     null_resource.export_client_config
@@ -96,7 +101,7 @@ data "template_file" "client_config" {
 }
 
 resource "local_file" "client_config" {
-  filename        = "${path.root}/client-config-final.ovpn"
+  filename        = "${path.root}/vpn_config/${module.this.id}-client-config-final.ovpn"
   file_permission = "0644"
   content         = data.template_file.client_config.rendered
 }
