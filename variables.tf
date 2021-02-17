@@ -1,3 +1,8 @@
+variable "region" {
+  type        = string
+  description = "AWS Region"
+} 
+
 variable "client_cidr" {
   description = "Network CIDR to use for clients"
 }
