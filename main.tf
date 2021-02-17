@@ -73,7 +73,8 @@ resource "null_resource" "export_client_config" {
     mkdir -p ${path.root}/vpn_config/ && \
     aws ec2 export-client-vpn-client-configuration \
             --client-vpn-endpoint-id ${aws_ec2_client_vpn_endpoint.default.id} \
-            --output text > ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn
+            --output text > ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn \
+            --region ${var.region}
 EOT
   }
 
