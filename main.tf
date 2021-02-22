@@ -67,6 +67,8 @@ resource "aws_cloudwatch_log_stream" "vpn" {
   log_group_name = aws_cloudwatch_log_group.vpn.name
 }
 
+# the sed edit is to add 'asdf.' to the DNS entry 
+# to make it work work for the OpenVPN Window's client (Mac also accepts this)
 resource "null_resource" "export_client_config" {
   provisioner "local-exec" {
     command = <<-EOT
@@ -75,6 +77,8 @@ resource "null_resource" "export_client_config" {
             --client-vpn-endpoint-id ${aws_ec2_client_vpn_endpoint.default.id} \
             --output text > ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn \
             --region ${var.region}
+    sed -i ".backup" "s/remote cvpn/remote asdf.cvpn/g" ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn
+    rm ${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn.backup
 EOT
   }
 
